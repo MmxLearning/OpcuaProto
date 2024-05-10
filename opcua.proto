@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package appProto;
+
+option go_package = ".;opcuaProto";
+
+import "google/protobuf/empty.proto";
+
+service Opcua {
+  rpc Report(stream Message) returns (google.protobuf.Empty) {}
+}
+
+message Message {
+  string name = 1;
+  string namespace = 2;
+  string node_id = 3;
+  bytes data = 4;
+}
