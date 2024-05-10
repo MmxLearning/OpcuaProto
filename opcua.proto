@@ -12,7 +12,6 @@ service Opcua {
 
 message Message {
   string name = 1;
-  string namespace = 2;
   string node_id = 3;
   bytes data = 4;
 }
