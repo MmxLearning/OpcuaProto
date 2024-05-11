@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Opcua_Report_FullMethodName = "/appProto.Opcua/Report"
+	Opcua_ReportOpcua_FullMethodName = "/appProto.Opcua/ReportOpcua"
 )
 
 // OpcuaClient is the client API for Opcua service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OpcuaClient interface {
-	Report(ctx context.Context, opts ...grpc.CallOption) (Opcua_ReportClient, error)
+	ReportOpcua(ctx context.Context, in *OpcuaMessage, opts ...grpc.CallOption) (*OpcuaResult, error)
 }
 
 type opcuaClient struct {
@@ -38,45 +37,20 @@ func NewOpcuaClient(cc grpc.ClientConnInterface) OpcuaClient {
 	return &opcuaClient{cc}
 }
 
-func (c *opcuaClient) Report(ctx context.Context, opts ...grpc.CallOption) (Opcua_ReportClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Opcua_ServiceDesc.Streams[0], Opcua_Report_FullMethodName, opts...)
+func (c *opcuaClient) ReportOpcua(ctx context.Context, in *OpcuaMessage, opts ...grpc.CallOption) (*OpcuaResult, error) {
+	out := new(OpcuaResult)
+	err := c.cc.Invoke(ctx, Opcua_ReportOpcua_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &opcuaReportClient{stream}
-	return x, nil
-}
-
-type Opcua_ReportClient interface {
-	Send(*Message) error
-	CloseAndRecv() (*emptypb.Empty, error)
-	grpc.ClientStream
-}
-
-type opcuaReportClient struct {
-	grpc.ClientStream
-}
-
-func (x *opcuaReportClient) Send(m *Message) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *opcuaReportClient) CloseAndRecv() (*emptypb.Empty, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	m := new(emptypb.Empty)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // OpcuaServer is the server API for Opcua service.
 // All implementations must embed UnimplementedOpcuaServer
 // for forward compatibility
 type OpcuaServer interface {
-	Report(Opcua_ReportServer) error
+	ReportOpcua(context.Context, *OpcuaMessage) (*OpcuaResult, error)
 	mustEmbedUnimplementedOpcuaServer()
 }
 
@@ -84,8 +58,8 @@ type OpcuaServer interface {
 type UnimplementedOpcuaServer struct {
 }
 
-func (UnimplementedOpcuaServer) Report(Opcua_ReportServer) error {
-	return status.Errorf(codes.Unimplemented, "method Report not implemented")
+func (UnimplementedOpcuaServer) ReportOpcua(context.Context, *OpcuaMessage) (*OpcuaResult, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReportOpcua not implemented")
 }
 func (UnimplementedOpcuaServer) mustEmbedUnimplementedOpcuaServer() {}
 
@@ -100,30 +74,22 @@ func RegisterOpcuaServer(s grpc.ServiceRegistrar, srv OpcuaServer) {
 	s.RegisterService(&Opcua_ServiceDesc, srv)
 }
 
-func _Opcua_Report_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(OpcuaServer).Report(&opcuaReportServer{stream})
-}
-
-type Opcua_ReportServer interface {
-	SendAndClose(*emptypb.Empty) error
-	Recv() (*Message, error)
-	grpc.ServerStream
-}
-
-type opcuaReportServer struct {
-	grpc.ServerStream
-}
-
-func (x *opcuaReportServer) SendAndClose(m *emptypb.Empty) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *opcuaReportServer) Recv() (*Message, error) {
-	m := new(Message)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _Opcua_ReportOpcua_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OpcuaMessage)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(OpcuaServer).ReportOpcua(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Opcua_ReportOpcua_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OpcuaServer).ReportOpcua(ctx, req.(*OpcuaMessage))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 // Opcua_ServiceDesc is the grpc.ServiceDesc for Opcua service.
@@ -132,13 +98,12 @@ func (x *opcuaReportServer) Recv() (*Message, error) {
 var Opcua_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "appProto.Opcua",
 	HandlerType: (*OpcuaServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams: []grpc.StreamDesc{
+	Methods: []grpc.MethodDesc{
 		{
-			StreamName:    "Report",
-			Handler:       _Opcua_Report_Handler,
-			ClientStreams: true,
+			MethodName: "ReportOpcua",
+			Handler:    _Opcua_ReportOpcua_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "opcua.proto",
 }

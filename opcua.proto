@@ -4,14 +4,16 @@ package appProto;
 
 option go_package = ".;opcuaProto";
 
-import "google/protobuf/empty.proto";
-
 service Opcua {
-  rpc Report(stream Message) returns (google.protobuf.Empty) {}
+  rpc ReportOpcua(OpcuaMessage) returns (OpcuaResult) {}
 }
 
-message Message {
+message OpcuaMessage {
   string name = 1;
   string node_id = 3;
   bytes data = 4;
+}
+
+message OpcuaResult {
+  uint64 id = 1;
 }
