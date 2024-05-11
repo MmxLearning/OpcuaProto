@@ -12,6 +12,7 @@ message OpcuaMessage {
   string name = 1;
   string node_id = 3;
   bytes data = 4;
+  uint32 timestamp = 5;
 }
 
 message OpcuaResult {
