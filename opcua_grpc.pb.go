@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Opcua_ReportOpcua_FullMethodName = "/appProto.Opcua/ReportOpcua"
+	Opcua_ReportOpcua_FullMethodName  = "/appProto.Opcua/ReportOpcua"
+	Opcua_RemoteScreen_FullMethodName = "/appProto.Opcua/RemoteScreen"
 )
 
 // OpcuaClient is the client API for Opcua service.
@@ -27,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OpcuaClient interface {
 	ReportOpcua(ctx context.Context, in *OpcuaMessage, opts ...grpc.CallOption) (*OpcuaResult, error)
+	RemoteScreen(ctx context.Context, opts ...grpc.CallOption) (Opcua_RemoteScreenClient, error)
 }
 
 type opcuaClient struct {
@@ -46,11 +49,46 @@ func (c *opcuaClient) ReportOpcua(ctx context.Context, in *OpcuaMessage, opts ..
 	return out, nil
 }
 
+func (c *opcuaClient) RemoteScreen(ctx context.Context, opts ...grpc.CallOption) (Opcua_RemoteScreenClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Opcua_ServiceDesc.Streams[0], Opcua_RemoteScreen_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &opcuaRemoteScreenClient{stream}
+	return x, nil
+}
+
+type Opcua_RemoteScreenClient interface {
+	Send(*Screen) error
+	CloseAndRecv() (*emptypb.Empty, error)
+	grpc.ClientStream
+}
+
+type opcuaRemoteScreenClient struct {
+	grpc.ClientStream
+}
+
+func (x *opcuaRemoteScreenClient) Send(m *Screen) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *opcuaRemoteScreenClient) CloseAndRecv() (*emptypb.Empty, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(emptypb.Empty)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // OpcuaServer is the server API for Opcua service.
 // All implementations must embed UnimplementedOpcuaServer
 // for forward compatibility
 type OpcuaServer interface {
 	ReportOpcua(context.Context, *OpcuaMessage) (*OpcuaResult, error)
+	RemoteScreen(Opcua_RemoteScreenServer) error
 	mustEmbedUnimplementedOpcuaServer()
 }
 
@@ -60,6 +98,9 @@ type UnimplementedOpcuaServer struct {
 
 func (UnimplementedOpcuaServer) ReportOpcua(context.Context, *OpcuaMessage) (*OpcuaResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReportOpcua not implemented")
+}
+func (UnimplementedOpcuaServer) RemoteScreen(Opcua_RemoteScreenServer) error {
+	return status.Errorf(codes.Unimplemented, "method RemoteScreen not implemented")
 }
 func (UnimplementedOpcuaServer) mustEmbedUnimplementedOpcuaServer() {}
 
@@ -92,6 +133,32 @@ func _Opcua_ReportOpcua_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Opcua_RemoteScreen_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(OpcuaServer).RemoteScreen(&opcuaRemoteScreenServer{stream})
+}
+
+type Opcua_RemoteScreenServer interface {
+	SendAndClose(*emptypb.Empty) error
+	Recv() (*Screen, error)
+	grpc.ServerStream
+}
+
+type opcuaRemoteScreenServer struct {
+	grpc.ServerStream
+}
+
+func (x *opcuaRemoteScreenServer) SendAndClose(m *emptypb.Empty) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *opcuaRemoteScreenServer) Recv() (*Screen, error) {
+	m := new(Screen)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // Opcua_ServiceDesc is the grpc.ServiceDesc for Opcua service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -104,6 +171,12 @@ var Opcua_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Opcua_ReportOpcua_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "RemoteScreen",
+			Handler:       _Opcua_RemoteScreen_Handler,
+			ClientStreams: true,
+		},
+	},
 	Metadata: "opcua.proto",
 }

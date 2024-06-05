@@ -4,8 +4,11 @@ package appProto;
 
 option go_package = ".;opcuaProto";
 
+import "google/protobuf/empty.proto";
+
 service Opcua {
   rpc ReportOpcua(OpcuaMessage) returns (OpcuaResult) {}
+  rpc RemoteScreen(stream Screen) returns (google.protobuf.Empty) {}
 }
 
 message OpcuaMessage {
@@ -17,4 +20,15 @@ message OpcuaMessage {
 
 message OpcuaResult {
   uint64 id = 1;
+}
+
+message HelloScreen {
+  string name = 1;
+}
+
+message Screen {
+  oneof payload {
+    bytes data = 1;
+    HelloScreen hello = 2;
+  }
 }
