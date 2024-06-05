@@ -25,6 +25,7 @@ message OpcuaResult {
 message HelloScreen {
   string name = 1;
   string desc = 2;
+  uint32 frame_rate = 3;
 }
 
 message StreamScreen {
