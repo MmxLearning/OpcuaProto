@@ -24,11 +24,17 @@ message OpcuaResult {
 
 message HelloScreen {
   string name = 1;
+  string desc = 2;
+}
+
+message StreamScreen {
+  bool stream = 1;
 }
 
 message Screen {
   oneof payload {
     bytes data = 1;
     HelloScreen hello = 2;
+    StreamScreen stream = 3;
   }
 }
