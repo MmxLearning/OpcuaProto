@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -60,7 +59,7 @@ func (c *opcuaClient) RemoteScreen(ctx context.Context, opts ...grpc.CallOption)
 
 type Opcua_RemoteScreenClient interface {
 	Send(*Screen) error
-	CloseAndRecv() (*emptypb.Empty, error)
+	Recv() (*StreamScreen, error)
 	grpc.ClientStream
 }
 
@@ -72,11 +71,8 @@ func (x *opcuaRemoteScreenClient) Send(m *Screen) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *opcuaRemoteScreenClient) CloseAndRecv() (*emptypb.Empty, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	m := new(emptypb.Empty)
+func (x *opcuaRemoteScreenClient) Recv() (*StreamScreen, error) {
+	m := new(StreamScreen)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -138,7 +134,7 @@ func _Opcua_RemoteScreen_Handler(srv interface{}, stream grpc.ServerStream) erro
 }
 
 type Opcua_RemoteScreenServer interface {
-	SendAndClose(*emptypb.Empty) error
+	Send(*StreamScreen) error
 	Recv() (*Screen, error)
 	grpc.ServerStream
 }
@@ -147,7 +143,7 @@ type opcuaRemoteScreenServer struct {
 	grpc.ServerStream
 }
 
-func (x *opcuaRemoteScreenServer) SendAndClose(m *emptypb.Empty) error {
+func (x *opcuaRemoteScreenServer) Send(m *StreamScreen) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -175,6 +171,7 @@ var Opcua_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "RemoteScreen",
 			Handler:       _Opcua_RemoteScreen_Handler,
+			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},

@@ -8,7 +8,7 @@ import "google/protobuf/empty.proto";
 
 service Opcua {
   rpc ReportOpcua(OpcuaMessage) returns (OpcuaResult) {}
-  rpc RemoteScreen(stream Screen) returns (google.protobuf.Empty) {}
+  rpc RemoteScreen(stream Screen) returns (stream StreamScreen) {}
 }
 
 message OpcuaMessage {
@@ -22,20 +22,19 @@ message OpcuaResult {
   uint64 id = 1;
 }
 
+message StreamScreen {
+  bool stream = 1;
+}
+
 message HelloScreen {
   string name = 1;
   string desc = 2;
   uint32 frame_rate = 3;
 }
 
-message StreamScreen {
-  bool stream = 1;
-}
-
 message Screen {
   oneof payload {
     bytes data = 1;
     HelloScreen hello = 2;
-    StreamScreen stream = 3;
   }
 }
